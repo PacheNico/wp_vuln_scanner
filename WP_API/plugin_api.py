@@ -1,10 +1,13 @@
 import requests
 import json
+import urllib.request
 
+ALL_VERSION = False #download all version of code available
+DEFAULT_LOCATION = "/tmp/testfolder/" #default download folder
 
 API_URL = "http://api.wordpress.org/plugins/info/1.1/?action=query_plugins";
 
-
+#fields returned by API (SOME ALWAYS ON)
 fields = {
         "name" : 0,
         "author" : 0,
@@ -30,13 +33,15 @@ fields = {
         "support_threads_resolved" : 0
 
 }
+
+#params structure
 query_plugins = {
     "browse":"popular",
-    "search":"video-popup-block",
+    "search":"",
     "tag":"",
     "author":"",
     "page":1,
-    "per_page":1,
+    "per_page":250, #250 MAX
     "fields":fields
 }
 
@@ -64,5 +69,23 @@ def getPlugins():
     response_json = json.loads(r.text)
     json_formatted_str = json.dumps(response_json, indent=2)
     print(json_formatted_str)
+    return response_json
 
-getPlugins()
+def download_from_link(url,name):
+    urllib.request.urlretrieve(url,DEFAULT_LOCATION+name)
+
+def downloadPlugins(plugins):
+    print('Beginning plugins download')
+    for x in plugins['plugins']:
+        download_from_link(x['download_link'],x['name']+x['version']+".zip")
+        if ALL_VERSION:
+            for y in x['versions']:
+                download_from_link(x['versions'][y],x['name']+y+".zip")
+
+    print('plugin download complete')
+
+
+
+#main
+plugins = getPlugins()
+downloadPlugins(plugins)
