@@ -12,12 +12,12 @@ function getDirContents($dir, &$results = array()) {
         $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
         $characterCount = strlen ( $path );
         if (!is_dir($path)) {
-            if(substr($path, $characterCount-3, $characterCount) == "php"){
+            if(substr($path, $characterCount-3, $characterCount) == "png"){
                 $results[] = $path;
             }
         } else if ($value != "." && $value != "..") {
             getDirContents($path, $results);
-            if(substr($path, $characterCount-3, $characterCount) == "php"){
+            if(substr($path, $characterCount-3, $characterCount) == "png"){
                 $results[] = $path;
             }
         }
@@ -29,24 +29,30 @@ function getDirContents($dir, &$results = array()) {
 //var_dump(getDirContents('testfolder/'));
 
 function parser($directory){
+    // $links_contents = file_get_contents('/Users/sharithgodamanna/Desktop/EC521/wp_vuln_scanner/wp-advanced-search-master/init.php');
+    // $code = $links_contents;
 
-    $all_php_paths = getDirContents($directory);
+    $all_php_paths = getDirContents('testfolder/');
 
     foreach ($all_php_paths as $key => $value) {
-        $links_contents = file_get_contents($value);
-        $code = $links_contents;
-        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
-        try {
-            $ast = $parser->parse($code);
-        } catch (Error $error) {
-            echo "Parse error: {$error->getMessage()}\n";
-            return;
-        }
-
-        $dumper = new NodeDumper;
-        echo $dumper->dump($ast) . "\n";
+        echo "$value\n";
     }
+
+    // $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+    // try {
+    //    $ast = $parser->parse($code);
+    // } catch (Error $error) {
+    //     echo "Parse error: {$error->getMessage()}\n";
+    // return;
+    // }
+
+    // $dumper = new NodeDumper;
+    // echo $dumper->dump($ast) . "\n";
 }
 
-parser($argv[1])
+parser('testfolder/')
 ?>
+
+
+
+
