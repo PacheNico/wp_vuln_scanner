@@ -4,9 +4,11 @@ import urllib.request
 import threading
 import os
 import subprocess
+import concurrent.futures
 
 ALL_VERSION = False #download all version of code available
 DEFAULT_LOCATION = "/tmp/testfolder" #default download folder
+THREAD_COUNT=10
 
 API_URL = "http://api.wordpress.org/plugins/info/1.1/?action=query_plugins";
 
@@ -43,7 +45,7 @@ query_plugins = {
     "search":"",
     "tag":"",
     "author":"",
-    "per_page":10, #250 MAX
+    "per_page":100, #250 MAX
     "fields":fields
 }
 
@@ -107,33 +109,10 @@ def thread_start(page_cnt):
         os.makedirs(DEFAULT_LOCATION)
 
     print(str(page_cnt))
-    batches =  page_cnt//5
-    remainder = page_cnt%5
-    for i in range(batches):
-        
-        print("batch"+str(i))
-        batch_page_start = 5*i
-        
-        
-        t1 = threading.Thread(target=threading_process, args=(batch_page_start+1,))
-        t2 = threading.Thread(target=threading_process, args=(batch_page_start+2,))
-        t3 = threading.Thread(target=threading_process, args=(batch_page_start+3,))
-        t4 = threading.Thread(target=threading_process, args=(batch_page_start+4,))
-        t5 = threading.Thread(target=threading_process, args=(batch_page_start+5,))
-        
-        
-        t1.start();
-        t2.start();
-        t3.start();
-        t4.start();
-        t5.start();
-        
-        
-        t1.join()
-        t2.join()
-        t3.join()
-        t4.join()
-        t5.join()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=THREAD_COUNT) as threadPool:
+        for page in range(page_cnt):
+            threadPool.submit(threading_process,page)
+
 
 #main
 page_cnt = getPageCount()
