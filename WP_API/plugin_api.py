@@ -1,9 +1,12 @@
 import requests
 import json
 import urllib.request
+import threading
+import os
+import subprocess
 
 ALL_VERSION = False #download all version of code available
-DEFAULT_LOCATION = "/tmp/testfolder/" #default download folder
+DEFAULT_LOCATION = "/tmp/testfolder" #default download folder
 
 API_URL = "http://api.wordpress.org/plugins/info/1.1/?action=query_plugins";
 
@@ -40,8 +43,7 @@ query_plugins = {
     "search":"",
     "tag":"",
     "author":"",
-    "page":1,
-    "per_page":250, #250 MAX
+    "per_page":10, #250 MAX
     "fields":fields
 }
 
@@ -55,37 +57,84 @@ def url_helper(parentlist,dictionary):
 
     return param
 
-def buildUrl():
-    url = API_URL +"&"+ url_helper("request",query_plugins)[:-1]
-    print("URL:"+ url +"\n\n\n---------------------------------------------------")
+def buildUrl(page_num=1):
+    url = API_URL +"&"+ url_helper("request",query_plugins)+"request[page]="+str(page_num)
+    #print("URL:"+ url +"\n\n\n---------------------------------------------------")
     return url
 
-def getPluginInfo(plugin):
-    print(plugin)
 
-def getPlugins():
-    url = buildUrl();
+def getPlugins(page_num=1):
+    url = buildUrl(page_num);
     r = requests.post(url = url)
     response_json = json.loads(r.text)
     json_formatted_str = json.dumps(response_json, indent=2)
-    print(json_formatted_str)
+    #print(json_formatted_str)
     return response_json
 
-def download_from_link(url,name):
-    urllib.request.urlretrieve(url,DEFAULT_LOCATION+name)
+def download_from_link(url,name,loc):
+    try:
+        urllib.request.urlretrieve(url,loc+name)
+    except:
+        print("download failed: "+name)
 
-def downloadPlugins(plugins):
+def downloadPlugins(plugins,download_loc):
     print('Beginning plugins download')
     for x in plugins['plugins']:
-        download_from_link(x['download_link'],x['name']+x['version']+".zip")
+        download_from_link(x['download_link'],x['name']+x['version']+".zip",download_loc)
         if ALL_VERSION:
             for y in x['versions']:
-                download_from_link(x['versions'][y],x['name']+y+".zip")
+                download_from_link(x['versions'][y],x['name']+y+".zip",download_loc)
 
     print('plugin download complete')
 
+def getPageCount():
+   return getPlugins()["info"]["pages"]
 
+def threading_process(page_num):
+    plugins= getPlugins(page_num)
+    download_loc = DEFAULT_LOCATION +"/"+str(page_num)+"/"
+    
+    if not os.path.exists(download_loc):
+        os.makedirs(download_loc)
+
+    downloadPlugins(plugins,download_loc);
+    unpack = subprocess.check_call("./unpack '%s'" % download_loc,shell=True)
+    print("done thread"+ str(page_num))
+
+def thread_start(page_cnt):
+
+    if not os.path.exists(DEFAULT_LOCATION):
+        os.makedirs(DEFAULT_LOCATION)
+
+    print(str(page_cnt))
+    batches =  page_cnt//5
+    remainder = page_cnt%5
+    for i in range(batches):
+        
+        print("batch"+str(i))
+        batch_page_start = 5*i
+        
+        
+        t1 = threading.Thread(target=threading_process, args=(batch_page_start+1,))
+        t2 = threading.Thread(target=threading_process, args=(batch_page_start+2,))
+        t3 = threading.Thread(target=threading_process, args=(batch_page_start+3,))
+        t4 = threading.Thread(target=threading_process, args=(batch_page_start+4,))
+        t5 = threading.Thread(target=threading_process, args=(batch_page_start+5,))
+        
+        
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+        t5.start();
+        
+        
+        t1.join()
+        t2.join()
+        t3.join()
+        t4.join()
+        t5.join()
 
 #main
-plugins = getPlugins()
-downloadPlugins(plugins)
+page_cnt = getPageCount()
+thread_start(page_cnt)

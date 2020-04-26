@@ -1,0 +1,7 @@
+#!/bin/sh
+cd $1
+for file in *.zip ; do
+echo ${file} >> ../includes.txt
+unzip "${file}" "*.php"
+done
+rm *.zip
