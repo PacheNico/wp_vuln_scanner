@@ -1,7 +1,17 @@
 #!/bin/sh
+
 cd $1
+
 for file in *.zip ; do
 echo ${file} >> ../includes.txt
-unzip "${file}" "*.php"
+unzip ${file} "*.php"
 done
+
 rm *.zip
+
+for d in *; do
+    if [ -d ${d} ]; then
+        # Will not run if no directories are available
+        php ${cwd}/../phpparser/all_phpfile_parser.php ${1}${d}
+    fi
+done

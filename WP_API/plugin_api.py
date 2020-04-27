@@ -7,8 +7,8 @@ import os
 # configurable variables
 ALL_VERSION = False         #download all version of code available
 DEFAULT_LOCATION = "/tmp/testfolder"  #default download folder
-THREAD_COUNT=7 #threads in threadpool
-PLUGINS_PER_BATCH = 75 #number of plugins per page 
+THREAD_COUNT=2 #threads in threadpool
+PLUGINS_PER_BATCH = 2 #number of plugins per page 
 API_URL = "http://api.wordpress.org/plugins/info/1.1/?action=query_plugins";
 
 #fields returned by API (SOME ALWAYS ON)
