@@ -1,14 +1,21 @@
 #!/bin/sh
 
+# save calling directory for call to ast converter
+cwd=$(pwd)
+
+#move to download directory
 cd $1
 
+#for each zip file unzip all php files 
 for file in *.zip ; do
 echo ${file} >> ../includes.txt
-unzip ${file} "*.php"
+unzip "${file}" "*.php"
 done
 
+#remove zip downloads
 rm *.zip
 
+#for each directory in the batch call ast converter
 for d in *; do
     if [ -d ${d} ]; then
         # Will not run if no directories are available

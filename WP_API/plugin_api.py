@@ -3,12 +3,13 @@ import json
 import urllib.request
 import concurrent.futures
 import os
+from subprocess import call
 
 # configurable variables
 ALL_VERSION = False         #download all version of code available
 DEFAULT_LOCATION = "/tmp/testfolder"  #default download folder
-THREAD_COUNT=2 #threads in threadpool
-PLUGINS_PER_BATCH = 2 #number of plugins per page 
+THREAD_COUNT=5 #threads in threadpool
+PLUGINS_PER_BATCH = 10 #number of plugins per page 
 API_URL = "http://api.wordpress.org/plugins/info/1.1/?action=query_plugins";
 
 #fields returned by API (SOME ALWAYS ON)
@@ -100,7 +101,7 @@ def threading_process(page_num):
         os.makedirs(download_loc)
 
     downloadPlugins(plugins,download_loc);
-    unpack = subprocess.check_call("./unpack '%s'" % download_loc,shell=True)
+    unpack = call("./unpack_and_parse '%s'" % download_loc,shell=True)
     print("done thread"+ str(page_num))
 
 #thread pool enviornment that starts the batches 
@@ -111,7 +112,7 @@ def thread_start(page_cnt):
 
     print("starting thread pool. queue length:"+str(page_cnt))
     with concurrent.futures.ThreadPoolExecutor(max_workers=THREAD_COUNT) as threadPool:
-        for page in range(page_cnt):
+        for page in range(1,page_cnt+1):
             threadPool.submit(threading_process,page)
 
 
