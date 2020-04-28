@@ -63,9 +63,16 @@ class sqlVulnScan extends NodeVisitorAbstract {
         } else{
             if ($node instanceof Node\Identifier && $node->name == "query") {
                 $queryName = $node->name;
-                $queryArgs = $node->getAttribute('parent')->args;
+                $queryArgs = $node->getAttribute('parent')->args; 
+                $dumper = new NodeDumper;      
+                echo $dumper->dump($queryArgs) . "\n";      
                 $varName = array_values($queryArgs)[0]->value->name;
+<<<<<<< HEAD
+   
+                $this->sqlVar = $varName;
+=======
                 array_push($this->sqlVars, $varName);
+>>>>>>> 3cf18ff304f31a22325f6d39aeec23d56b619cb6
             }
         }
     }
@@ -85,12 +92,12 @@ function getDirContents($dir, &$results = array()) {
         $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
         $characterCount = strlen ( $path );
         if (!is_dir($path)) {
-            if(substr($path, $characterCount-3, $characterCount) == "php"){
+            if(substr($path, $characterCount-4, $characterCount) == ".php"){
                 $results[] = $path;
             }
         } else if ($value != "." && $value != "..") {
             getDirContents($path, $results);
-            if(substr($path, $characterCount-3, $characterCount) == "php"){
+            if(substr($path, $characterCount-4, $characterCount) == ".php"){
                 $results[] = $path;
             }
         }
@@ -150,11 +157,17 @@ function parser($directory){
         $isVuln = $vuln2->isVuln;
 
         if($isVuln){
+<<<<<<< HEAD
+            echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
+            $line = getLineWithString($value, $statement);
+            echo "\tFound in line ".$line." of ".$value;
+=======
             for ($i = 0; $i < sizeof($statements); $i++) {
                 echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
                 $line = getLineWithString($value, $statements[$i]);
                 echo "\tFound in".$statements[$i]." line ".$line." of ".$value."\n";
             }
+>>>>>>> 3cf18ff304f31a22325f6d39aeec23d56b619cb6
         }
 
     }
