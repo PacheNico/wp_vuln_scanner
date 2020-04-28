@@ -60,8 +60,11 @@ class sqlVulnScan extends NodeVisitorAbstract {
         } else{
             if ($node instanceof Node\Identifier && $node->name == "query") {
                 $queryName = $node->name;
-                $queryArgs = $node->getAttribute('parent')->args;
+                $queryArgs = $node->getAttribute('parent')->args; 
+                $dumper = new NodeDumper;      
+                echo $dumper->dump($queryArgs) . "\n";      
                 $varName = array_values($queryArgs)[0]->value->name;
+   
                 $this->sqlVar = $varName;
             }
         }
@@ -82,12 +85,12 @@ function getDirContents($dir, &$results = array()) {
         $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
         $characterCount = strlen ( $path );
         if (!is_dir($path)) {
-            if(substr($path, $characterCount-3, $characterCount) == "php"){
+            if(substr($path, $characterCount-4, $characterCount) == ".php"){
                 $results[] = $path;
             }
         } else if ($value != "." && $value != "..") {
             getDirContents($path, $results);
-            if(substr($path, $characterCount-3, $characterCount) == "php"){
+            if(substr($path, $characterCount-4, $characterCount) == ".php"){
                 $results[] = $path;
             }
         }
@@ -146,7 +149,7 @@ function parser($directory){
         if($isVuln){
             echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
             $line = getLineWithString($value, $statement);
-            echo "\tFound in line ".$line." of ".explode("/", $value)[sizeof(explode("/", $value))-1]."\n";
+            echo "\tFound in line ".$line." of ".$value;
         }
 
     }
