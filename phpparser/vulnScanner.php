@@ -16,6 +16,8 @@ class sqlVulnScan extends NodeVisitorAbstract {
     private $stack;
     public $sqlVar;
     private $varCheck;
+    public $sqlStatement;
+    public $isVuln = false;
 
     // Sets class to either check the SQL statement or find the SQL variable
     function __construct($a1 = "") {
@@ -48,13 +50,14 @@ class sqlVulnScan extends NodeVisitorAbstract {
                     if ($this->sqlVar == $node->var->name) {
                         $parent = $node->getAttribute('parent');
                         if ($parent->expr->expr instanceof Node\Expr\BinaryOp\Concat) {
-                            echo "VULNERABILITY DETECTED: SQL query formed by concatenation" . "\n";
+                            $this->isVuln = true;
+                            $this->sqlStatement = $parent->expr->expr->left->value;
                         }
                     }
                 }
             }
         // SQL variable location
-        } else {
+        } else{
             if ($node instanceof Node\Identifier && $node->name == "query") {
                 $queryName = $node->name;
                 $queryArgs = $node->getAttribute('parent')->args;
@@ -93,13 +96,25 @@ function getDirContents($dir, &$results = array()) {
     return $results;
 }
 
+function getLineWithString($fileName, $str) {
+    $lines = file($fileName);
+    $idx = 1;
+    foreach ($lines as $lineNumber => $line) {
+        if (strpos($line, $str) !== false) {
+            return $idx;
+        }
+        $idx++;
+    }
+    return -1;
+}
+
 // Runs vulnerability scanner
 function parser($directory){
     $all_php_paths = getDirContents($directory);
 
     foreach ($all_php_paths as $key => $value) {
         // extending NodeVisitorAbstract to store the parent class
-        echo "\n" . "Filename: " . $value . "\n";
+        echo "\n" . "Scanning file " . str_replace(getcwd().'/', "", $value) . "\n";
         $links_contents = file_get_contents($value);
         $code = $links_contents;
 
@@ -125,12 +140,22 @@ function parser($directory){
         $vuln2 = new SQLVulnScan($sqlVarArray);
         $traverser2->addVisitor ($vuln2);
         $ast2 = $traverser2->traverse($ast);
+        $statement = $vuln2->sqlStatement;
+        $isVuln = $vuln2->isVuln;
+
+        if($isVuln){
+            echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
+            $line = getLineWithString($value, $statement);
+            echo "\tFound in line ".$line." of ".explode("/", $value)[sizeof(explode("/", $value))-1]."\n";
+        }
+
     }
 
 }
 
 
 parser($argv[1]);
+
 
 
 
