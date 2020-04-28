@@ -14,18 +14,19 @@ use PhpParser\NodeFinder;
 class sqlVulnScan extends NodeVisitorAbstract {
 
     private $stack;
-    public $sqlVar;
+    public $sqlVars;
     private $varCheck;
-    public $sqlStatement;
+    public $sqlStatements;
     public $isVuln = false;
 
     // Sets class to either check the SQL statement or find the SQL variable
-    function __construct($a1 = "") {
-        $this->sqlVar = $a1;
-        if (strlen($a1) > 0) {
-            $this->varCheck = 1;
-        } else {
+    function __construct($a1=[]) {
+        $this->sqlVars = $a1;
+        $this->sqlStatements = [];
+        if (count($a1) == 0) {
             $this->varCheck = 0;
+        } else {
+            $this->varCheck = 1;
         }
     }
 
@@ -47,11 +48,13 @@ class sqlVulnScan extends NodeVisitorAbstract {
         if ($this->varCheck == 1) {
             if ($node instanceof Node\Expr\Assign){
                 if ($node->var instanceof Node\Expr\Variable){
-                    if ($this->sqlVar == $node->var->name) {
-                        $parent = $node->getAttribute('parent');
-                        if ($parent->expr->expr instanceof Node\Expr\BinaryOp\Concat) {
-                            $this->isVuln = true;
-                            $this->sqlStatement = $parent->expr->expr->left->value;
+                    for ($i = 0; $i < sizeof($this->sqlVars); $i++) {
+                        if ($this->sqlVars[$i] == $node->var->name) {
+                            $parent = $node->getAttribute('parent');
+                            if ($parent->expr->expr instanceof Node\Expr\BinaryOp\Concat) {
+                                $this->isVuln = true;
+                                array_push($this->sqlStatements, $parent->expr->expr->left->value);
+                            }
                         }
                     }
                 }
@@ -62,7 +65,7 @@ class sqlVulnScan extends NodeVisitorAbstract {
                 $queryName = $node->name;
                 $queryArgs = $node->getAttribute('parent')->args;
                 $varName = array_values($queryArgs)[0]->value->name;
-                $this->sqlVar = $varName;
+                array_push($this->sqlVars, $varName);
             }
         }
     }
@@ -134,19 +137,24 @@ function parser($directory){
         $vuln1 = new SQLVulnScan();
         $traverser1->addVisitor ($vuln1);
         $ast1 = $traverser1->traverse($ast);
-        $sqlVarArray = $vuln1->sqlVar;
+        $sqlVarArray = $vuln1->sqlVars;
 
         //traverse AST to find sql statements
         $vuln2 = new SQLVulnScan($sqlVarArray);
         $traverser2->addVisitor ($vuln2);
         $ast2 = $traverser2->traverse($ast);
-        $statement = $vuln2->sqlStatement;
+        $statements = $vuln2->sqlStatements;
+        for ($i = 0; $i < sizeof($statements); $i++) {
+            echo $statements[$i] . "\n";
+        }
         $isVuln = $vuln2->isVuln;
 
         if($isVuln){
-            echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
-            $line = getLineWithString($value, $statement);
-            echo "\tFound in line ".$line." of ".explode("/", $value)[sizeof(explode("/", $value))-1]."\n";
+            for ($i = 0; $i < sizeof($statements); $i++) {
+                echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
+                $line = getLineWithString($value, $statements[$i]);
+                echo "\tFound in line ".$line." of ".explode("/", $value)[sizeof(explode("/", $value))-1]."\n";
+            }
         }
 
     }

@@ -9,7 +9,15 @@ if (NULL == $_GET['id']) $_GET['id'] = 1;
 
 $sql = 'SELECT * FROM employees WHERE employeeId = ' . $_GET['id'];
 
+$sql2 = 'SELECT * FROM employees WHERE employeeName = ' . $_GET['name'];
+
 foreach ($file_db->query($sql) as $row) {
+    $employee = $row['LastName'] . " - " . $row['Email'] . "\n";
+
+    echo $employee;
+}
+
+foreach ($file_db->query($sql2) as $row) {
     $employee = $row['LastName'] . " - " . $row['Email'] . "\n";
 
     echo $employee;
