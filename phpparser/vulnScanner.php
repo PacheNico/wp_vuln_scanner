@@ -117,7 +117,7 @@ function parser($directory){
 
     foreach ($all_php_paths as $key => $value) {
         // extending NodeVisitorAbstract to store the parent class
-        echo "\n" . "Scanning file " . str_replace(getcwd().'/', "", $value) . "\n";
+        //echo "\n" . "Scanning file " . str_replace(getcwd().'/', "", $value) . "\n";
         $links_contents = file_get_contents($value);
         $code = $links_contents;
 
@@ -145,7 +145,7 @@ function parser($directory){
         $ast2 = $traverser2->traverse($ast);
         $statements = $vuln2->sqlStatements;
         for ($i = 0; $i < sizeof($statements); $i++) {
-            echo $statements[$i] . "\n";
+            //echo $statements[$i] . "\n";
         }
         $isVuln = $vuln2->isVuln;
 
@@ -153,7 +153,7 @@ function parser($directory){
             for ($i = 0; $i < sizeof($statements); $i++) {
                 echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
                 $line = getLineWithString($value, $statements[$i]);
-                echo "\tFound in line ".$line." of ".explode("/", $value)[sizeof(explode("/", $value))-1]."\n";
+                echo "\tFound in".$statements[$i]." line ".$line." of ".$value."\n";
             }
         }
 
