@@ -36,7 +36,7 @@ class sqlVulnScan extends NodeVisitorAbstract {
     // Sets the stack to an empty array before traversal
     public function beforeTraverse(array $nodes) {
         $this->stack = [];
-        $this->sources = array("_REQUEST", "_GET", "_POST", "_SERVER");    // fill in
+        $this->sources = array("_REQUEST", "_GET", "_POST");    // fill in
         $this->sinks = array("PhpParser\Node\Stmt\Echo_","PhpParser\Node\Expr\Exit_", "PhpParser\Node\Expr\Print_", "PhpParser\Node\Expr\FuncCall");    // fill in
     }
 
@@ -59,7 +59,6 @@ class sqlVulnScan extends NodeVisitorAbstract {
                             if ($parent->expr->expr instanceof Node\Expr\BinaryOp\Concat) {
                                 $this->isVulnSQL = true;
                                 array_push($this->linesSQL, $node->getLine());
-                                array_push($this->sqlStatements, $parent->expr->expr->left->value);
                             }
                         }
                     }
