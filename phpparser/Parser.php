@@ -133,7 +133,9 @@ class sqlVulnScan extends NodeVisitorAbstract {
                 return $return_node;    // return_node is node with subnode that matches a sink
             }
         }
-        if (!empty($return_node)){return $return_node; }// NULL
+        if (!empty($return_node)){
+            return $return_node;    // return_node is node with subnode that matches a sink
+        } // NULL
 
     }
 
