@@ -34,7 +34,7 @@ function parser($directory){
     // iterating through all php paths
     foreach ($all_php_paths as $key => $value) {
         // extending NodeVisitorAbstract to store the parent class
-        echo "Scanning file " . str_replace(getcwd().'/', "", $value) . "\n";
+        // echo "Scanning file " . str_replace(getcwd().'/', "", $value) . "\n";
         $links_contents = file_get_contents($value);
         $code = $links_contents;
 
@@ -52,7 +52,6 @@ function parser($directory){
 
         // traverse AST to find sqlVars
         $vuln1 = new SQLVulnScan();
-        $traverser1->addVisitor ($vuln1);
         $ast1 = $traverser1->traverse($ast);
         $sqlVarArray = $vuln1->sqlVars;
 
@@ -75,24 +74,24 @@ function parser($directory){
             // echo "\tFound in line ".$line." of ".$value;
 
             for ($i = 0; $i < sizeof($linesSQL); $i++) {
-                echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
+                echo "\nPossible SQL Injection\n";
                 $line = $linesSQL[$i];
-                echo "\tFound in line ".$line." of ".explode("/", $value)[sizeof(explode("/", $value))-1]."\n";
+                echo "In line ".$line." of ".$value."\n";
             }
+             echo "\n";
         }
 
         if($isVulnXSS){
             // echo "\tWARNING, Dangerous Sink/Source usage, Possible XSS vulnerability\n";
             // $linesXSS = $as2->linesXSS;
             // echo "\tFound in line ".$line." of ".$value;
-
+            
             for ($i = 0; $i < sizeof($linesXSS); $i++) {
-                echo "\tWARNING, Dangerous Sink/Source usage, Possible XSS vulnerability\n";
+                echo "\nPossible XSS vulnerability\n";
                 $line = $linesXSS[$i];
-                echo "\tFound in line ".$line." of ".explode("/", $value)[sizeof(explode("/", $value))-1]."\n";
+                echo "Found in line ".$line." of ".$value."\n";
             }
         }
-
     }
 
 }
