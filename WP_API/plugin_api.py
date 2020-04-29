@@ -9,8 +9,8 @@ from subprocess import call
 # configurable variables
 ALL_VERSION = False         #download all version of code available
 DEFAULT_LOCATION = "/tmp/testfolder"  #default download folder
-THREAD_COUNT=3 #threads in threadpool
-PLUGINS_PER_BATCH = 20 #number of plugins per page 
+THREAD_COUNT=5 #threads in threadpool
+PLUGINS_PER_BATCH = 50 #number of plugins per page 
 API_URL = "http://api.wordpress.org/plugins/info/1.1/?action=query_plugins";
 
 #fields returned by API (SOME ALWAYS ON)
