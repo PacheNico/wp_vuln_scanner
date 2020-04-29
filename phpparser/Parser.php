@@ -17,8 +17,10 @@ class sqlVulnScan extends NodeVisitorAbstract {
     public $sqlVars;
     private $varCheck;
     public $sqlStatements;
-    public $isVuln = false;
-    public $lines;
+    public $isVulnSQL = false;
+    public $isVulnXSS = false;
+    public $linesSQL=[];
+    public $linesXSS=[];
 
     // Sets class to either check the SQL statement or find the SQL variable
     function __construct($a1=[]) {
@@ -34,6 +36,8 @@ class sqlVulnScan extends NodeVisitorAbstract {
     // Sets the stack to an empty array before traversal
     public function beforeTraverse(array $nodes) {
         $this->stack = [];
+        $this->sources = array("_REQUEST", "_GET", "_POST", "_SERVER");    // fill in
+        $this->sinks = array("PhpParser\Node\Stmt\Echo_","PhpParser\Node\Expr\Exit_", "PhpParser\Node\Expr\Print_", "PhpParser\Node\Expr\FuncCall");    // fill in
     }
 
     // Runs checks for SQL variables or SQL statements
@@ -53,8 +57,9 @@ class sqlVulnScan extends NodeVisitorAbstract {
                         if ($this->sqlVars[$i] == $node->var->name) {
                             $parent = $node->getAttribute('parent');
                             if ($parent->expr->expr instanceof Node\Expr\BinaryOp\Concat) {
-                                $this->isVuln = true;
-                                array_push($this->lines, $node->getLine());
+                                $this->isVulnSQL = true;
+                                $this->lineSQL = $node->getLine();
+                                array_push($this->sqlStatements, $parent->expr->expr->left->value);
                             }
                         }
                     }
@@ -84,8 +89,9 @@ class sqlVulnScan extends NodeVisitorAbstract {
             }
             if (!empty($this->findSourceRecursively($node)))
             {
-                array_push($this->lines,$node->getLine());
-                echo implode(",",$this->lines) . "\n";
+                array_push($this->linesXSS,$node->getLine());
+                $this->isVulnXSS = true;
+                echo implode(",",$this->linesXSS) . "\n";
             }
         }
     }

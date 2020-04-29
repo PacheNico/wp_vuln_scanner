@@ -2,7 +2,7 @@
 
 use PhpParser\ParserFactory;
 use PhpParser\NodeTraverser;
-require_once('SQLParser.php');
+require_once('Parser.php');
 
 
 // Gets the source code of all PHP files in a directory
@@ -64,17 +64,31 @@ function parser($directory){
         for ($i = 0; $i < sizeof($statements); $i++) {
             echo $statements[$i] . "\n";
         }
-        $isVuln = $vuln2->isVuln;
-        $lines = $vuln2->lines;
+        $isVulnSQL = $vuln2->isVulnSQL;
+        $linesSQL = $vuln2->linesSQL;
+        $isVulnXSS = $vuln2->isVulnXSS;
+        $linesXSS = $vuln2->linesXSS;
 
-        if($isVuln){
+        if($isVulnSQL){
             // echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
-            // $lines = $as2->lines;
+            // $linesSQL = $as2->linesSQL;
             // echo "\tFound in line ".$line." of ".$value;
 
-            for ($i = 0; $i < sizeof($lines); $i++) {
+            for ($i = 0; $i < sizeof($linesSQL); $i++) {
                 echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
-                $line = $lines[0];
+                $line = $linesSQL[0];
+                echo "\tFound in line ".$line." of ".explode("/", $value)[sizeof(explode("/", $value))-1]."\n";
+            }
+        }
+
+        if($isVulnXSS){
+            // echo "\tWARNING, Dangerous Sink/Source usage, Possible XSS vulnerability\n";
+            // $linesXSS = $as2->linesXSS;
+            // echo "\tFound in line ".$line." of ".$value;
+
+            for ($i = 0; $i < sizeof($linesXSS); $i++) {
+                echo "\tWARNING, Dangerous Sink/Source usage, Possible XSS vulnerability\n";
+                $line = $linesXSS[0];
                 echo "\tFound in line ".$line." of ".explode("/", $value)[sizeof(explode("/", $value))-1]."\n";
             }
         }
@@ -85,9 +99,3 @@ function parser($directory){
 
 
 parser($argv[1]);
-
-
-
-
-
-
