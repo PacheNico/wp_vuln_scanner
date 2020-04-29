@@ -59,10 +59,6 @@ function parser($directory){
         $vuln2 = new SQLVulnScan($sqlVarArray);
         $traverser2->addVisitor ($vuln2);
         $ast2 = $traverser2->traverse($ast);
-        $statements = $vuln2->sqlStatements;
-        for ($i = 0; $i < sizeof($statements); $i++) {
-            //echo $statements[$i] . "\n";
-        }
         $isVulnSQL = $vuln2->isVulnSQL;
         $linesSQL = $vuln2->linesSQL;
         $isVulnXSS = $vuln2->isVulnXSS;
@@ -85,7 +81,7 @@ function parser($directory){
             // echo "\tWARNING, Dangerous Sink/Source usage, Possible XSS vulnerability\n";
             // $linesXSS = $as2->linesXSS;
             // echo "\tFound in line ".$line." of ".$value;
-            
+
             for ($i = 0; $i < sizeof($linesXSS); $i++) {
                 echo "\nPossible XSS vulnerability\n";
                 $line = $linesXSS[$i];
