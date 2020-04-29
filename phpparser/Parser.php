@@ -56,6 +56,11 @@ class sqlVulnScan extends NodeVisitorAbstract {
                     for ($i = 0; $i < sizeof($this->sqlVars); $i++) {
                         if ($this->sqlVars[$i] == $node->var->name) {
                             $parent = $node->getAttribute('parent');
+                            if(!in_array("expr", $parent->getSubNodeNames())){
+                                return;
+                            }elseif(!in_array("expr", $parent->expr->getSubNodeNames())){
+                                return;
+                            }
                             if ($parent->expr->expr instanceof Node\Expr\BinaryOp\Concat) {
                                 $this->isVuln = true;
                                 array_push($this->sqlStatements, $parent->getLine());
