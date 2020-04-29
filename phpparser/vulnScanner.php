@@ -61,25 +61,34 @@ function parser($directory){
         $linesSQL = $vuln2->linesSQL;
         $linesXSS = $vuln1->linesXSS;
 
+        $sql = "[]";
+        $xss = "[]";
 
         if(sizeof($linesSQL) > 0){
-            for ($i = 0; $i < sizeof($linesSQL); $i++) {
-                echo "SQL Injection\n";
-                echo "Found in line ".$linesSQL[$i]." of ".$value."\n";
-                echo "\n";
-            }
+            echo $value;
+            $sql = "[".implode(",", $linesSQL)."]";
+            // for ($i = 0; $i < sizeof($linesSQL); $i++) {
+            //     // echo "SQL Injection\n";
+            //     // array_push($sql, $linesSQL[$i]);
+            //     // echo "string";
+                
+            // }
         }
-
 
         if(sizeof($linesXSS) > 0){
-            for ($i = 0; $i < sizeof($linesXSS); $i++) {
-                echo "XSS vulnerability\n";
-                echo "Found in line ".$linesXSS[$i]." of ".$value."\n";
-                echo "\n";
-            }
-        }
-        
+            $xss = "[".implode(",", $linesXSS)."]";
 
+            // for ($i = 0; $i < sizeof($linesXSS); $i++) {
+            //     // echo "XSS vulnerability\n";
+            //     // array_push($xss, $linesXSS[$i]);
+            // }
+        }
+
+        // echo implode( ", ", $xss )."\n";
+        
+        if(sizeof($linesSQL) > 0 || sizeof($linesXSS) > 0){
+            echo $value.":".$sql.";".$xss."\n";
+        }
     }
 
 }
