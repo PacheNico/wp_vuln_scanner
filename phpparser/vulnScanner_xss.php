@@ -74,7 +74,11 @@ function parser($directory){
             public $sinks;
             public $sources;
             public $lines;
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> ed62b72cb26d81c1bc810f84fdcfeaca7e42532a
             public function beforeTraverse(array $nodes) {
                 $this->stack = [];
                 $this->sources = array("_REQUEST", "_GET", "_POST", "_SERVER");    // fill in
@@ -83,15 +87,25 @@ function parser($directory){
             }
  
             public function enterNode(Node $node) {
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> ed62b72cb26d81c1bc810f84fdcfeaca7e42532a
                 if (!empty($this->stack)) {
                     $node->setAttribute('parent', $this->stack[count($this->stack)-1]);
                     $node->setAttribute('grandparent', $this->stack[count($this->stack)-2]);
                     $node->setAttribute('grandgrandparent', $this->stack[count($this->stack)-3]);
                 }
+<<<<<<< HEAD
  
                 $this->stack[] = $node;
  
+=======
+
+                $this->stack[] = $node;
+
+>>>>>>> ed62b72cb26d81c1bc810f84fdcfeaca7e42532a
                 if ($node instanceof Node\Identifier && $node->name == "query") {
                     $queryName = $node->name;
                     $queryArgs = $node->getAttribute('parent')->args;
@@ -113,13 +127,21 @@ function parser($directory){
                         echo implode(",",$this->lines) . "\n";
                     }
                 }
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> ed62b72cb26d81c1bc810f84fdcfeaca7e42532a
             }
  
             public function leaveNode(Node $node) {
                 array_pop($this->stack);
             }
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> ed62b72cb26d81c1bc810f84fdcfeaca7e42532a
             public function findSourceRecursively(Node $node) {
                 echo get_class($node) ."\n";
                 $subnode_names = $node->getSubNodeNames();
@@ -151,7 +173,11 @@ function parser($directory){
                         $return_node = $this->findSourceRecursively($subnode);
                     }
                     else {
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> ed62b72cb26d81c1bc810f84fdcfeaca7e42532a
                         echo "Error in recursively traversing\n";
                     }
                     if (!empty($return_node)){
@@ -159,9 +185,15 @@ function parser($directory){
                     }
                 }
                 return $return_node; // NULL
+<<<<<<< HEAD
  
             }
  
+=======
+
+            }
+
+>>>>>>> ed62b72cb26d81c1bc810f84fdcfeaca7e42532a
         });
  
         // traverse AST
