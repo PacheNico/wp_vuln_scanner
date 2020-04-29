@@ -54,8 +54,7 @@ class sqlVulnScan extends NodeVisitorAbstract {
                             $parent = $node->getAttribute('parent');
                             if ($parent->expr->expr instanceof Node\Expr\BinaryOp\Concat) {
                                 $this->isVuln = true;
-                                $this->line = $node->getLine();
-                                array_push($this->sqlStatements, $parent->expr->expr->left->value);
+                                array_push($this->lines, $node->getLine());
                             }
                         }
                     }
