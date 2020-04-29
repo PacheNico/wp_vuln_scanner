@@ -82,7 +82,14 @@ class sqlVulnScan extends NodeVisitorAbstract {
     {
         if (get_class($node)=="PhpParser\Node\Expr\FuncCall")        // further check for Expr_FuncCall sinks
         {
-            if (!is_array($node->name->parts))
+            if (!in_array("name", $node->getSubNodeNames()))
+            {
+                return;
+            }
+            elseif (!in_array("parts", $node->name->getSubNodeNames())) {
+                return;
+            }
+            elseif (!is_array($node->name->parts))
             {
                 return;
             }
