@@ -65,15 +65,16 @@ function parser($directory){
             echo $statements[$i] . "\n";
         }
         $isVuln = $vuln2->isVuln;
+        $lines = $vuln2->lines;
 
         if($isVuln){
-            echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
-            $line = $as2->line;
-            echo "\tFound in line ".$line." of ".$value;
+            // echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
+            // $lines = $as2->lines;
+            // echo "\tFound in line ".$line." of ".$value;
 
-            for ($i = 0; $i < sizeof($statements); $i++) {
+            for ($i = 0; $i < sizeof($lines); $i++) {
                 echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
-                $line = getLineWithString($value, $statements[$i]);
+                $line = $lines[0];
                 echo "\tFound in line ".$line." of ".explode("/", $value)[sizeof(explode("/", $value))-1]."\n";
             }
         }
