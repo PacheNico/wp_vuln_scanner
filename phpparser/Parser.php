@@ -137,10 +137,10 @@ class sqlVulnScan extends NodeVisitorAbstract {
 
     }
 
-    // Pops the node
-    public function leaveNode(Node $node) {
-        array_pop($this->stack);
-    }
+    // // Pops the node
+    // public function leaveNode(Node $node) {
+    //     array_pop($this->stack);
+    // }
 
 }
 

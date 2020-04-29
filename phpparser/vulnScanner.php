@@ -57,10 +57,13 @@ function parser($directory){
 
         //traverse AST to find sql statements
         $vuln2 = new SQLVulnScan($sqlVarArray);
+
         $traverser2->addVisitor ($vuln2);
         $ast2 = $traverser2->traverse($ast);
+
         $isVulnSQL = $vuln2->isVulnSQL;
         $linesSQL = $vuln2->linesSQL;
+        echo sizeof($sqlVarArray);
         $isVulnXSS = $vuln2->isVulnXSS;
         $linesXSS = $vuln2->linesXSS;
 
