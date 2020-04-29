@@ -67,12 +67,9 @@ class sqlVulnScan extends NodeVisitorAbstract {
                 $dumper = new NodeDumper;      
                 echo $dumper->dump($queryArgs) . "\n";      
                 $varName = array_values($queryArgs)[0]->value->name;
-<<<<<<< HEAD
    
                 $this->sqlVar = $varName;
-=======
                 array_push($this->sqlVars, $varName);
->>>>>>> 3cf18ff304f31a22325f6d39aeec23d56b619cb6
             }
         }
     }
@@ -157,17 +154,15 @@ function parser($directory){
         $isVuln = $vuln2->isVuln;
 
         if($isVuln){
-<<<<<<< HEAD
             echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
             $line = getLineWithString($value, $statement);
             echo "\tFound in line ".$line." of ".$value;
-=======
+
             for ($i = 0; $i < sizeof($statements); $i++) {
                 echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
                 $line = getLineWithString($value, $statements[$i]);
                 echo "\tFound in line ".$line." of ".explode("/", $value)[sizeof(explode("/", $value))-1]."\n";
             }
->>>>>>> 3cf18ff304f31a22325f6d39aeec23d56b619cb6
         }
 
     }
