@@ -1,3 +1,4 @@
+#MADE ON PYTHON 3.7.7 and Fedora 31
 import requests
 import json
 import urllib.request
@@ -9,7 +10,7 @@ from subprocess import call
 ALL_VERSION = False         #download all version of code available
 DEFAULT_LOCATION = "/tmp/testfolder"  #default download folder
 THREAD_COUNT=5 #threads in threadpool
-PLUGINS_PER_BATCH = 10 #number of plugins per page 
+PLUGINS_PER_BATCH = 50 #number of plugins per page 
 API_URL = "http://api.wordpress.org/plugins/info/1.1/?action=query_plugins";
 
 #fields returned by API (SOME ALWAYS ON)
