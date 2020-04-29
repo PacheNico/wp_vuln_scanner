@@ -58,7 +58,7 @@ class sqlVulnScan extends NodeVisitorAbstract {
                             $parent = $node->getAttribute('parent');
                             if ($parent->expr->expr instanceof Node\Expr\BinaryOp\Concat) {
                                 $this->isVulnSQL = true;
-                                $this->lineSQL = $node->getLine();
+                                array_push($this->linesSQL, $node->getLine());
                                 array_push($this->sqlStatements, $parent->expr->expr->left->value);
                             }
                         }
@@ -67,17 +67,17 @@ class sqlVulnScan extends NodeVisitorAbstract {
             }
         // SQL variable location
         } else{
-            if ($node instanceof Node\Identifier && $node->name == "query") {
-                $queryName = $node->name;
-                $queryArgs = $node->getAttribute('parent')->args;
-                $dumper = new NodeDumper;
-                // echo $dumper->dump($queryArgs) . "\n";
-                $varName = array_values($queryArgs)[0]->value->name;
-
-                $this->sqlVar = $varName;
-                array_push($this->sqlVars, $varName);
+             if ($node instanceof Node\Identifier && $node->name == "query") {
+                $parent = $node->getAttribute('parent');
+                if ($parent instanceof Node\Expr\MethodCall && $parent->args != null) {
+                    $queryArgs = $parent->args[0];
+                    if ($queryArgs->value instanceof Node\Expr\Variable) {
+                        array_push($this->sqlVars, $queryArgs->value->name);
+                    }
+                }
             }
         }
+
         if (in_array(get_class($node), $this->sinks))   // version 4: node down, general, using recursive source search
         {
             if (get_class($node)=="PhpParser\Node\Expr\FuncCall")        // further check for Expr_FuncCall sinks
@@ -134,7 +134,9 @@ class sqlVulnScan extends NodeVisitorAbstract {
                 return $return_node;    // return_node is node with subnode that matches a sink
             }
         }
-        return $return_node; // NULL
+        if (!empty($return_node)){
+            return $return_node;    // return_node is node with subnode that matches a sink
+        } // NULL
 
     }
 
