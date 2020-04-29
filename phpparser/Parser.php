@@ -71,7 +71,7 @@ class sqlVulnScan extends NodeVisitorAbstract {
                 $queryName = $node->name;
                 $queryArgs = $node->getAttribute('parent')->args;
                 $dumper = new NodeDumper;
-                echo $dumper->dump($queryArgs) . "\n";
+                // echo $dumper->dump($queryArgs) . "\n";
                 $varName = array_values($queryArgs)[0]->value->name;
 
                 $this->sqlVar = $varName;
@@ -91,13 +91,13 @@ class sqlVulnScan extends NodeVisitorAbstract {
             {
                 array_push($this->linesXSS,$node->getLine());
                 $this->isVulnXSS = true;
-                echo implode(",",$this->linesXSS) . "\n";
+                // echo implode(",",$this->linesXSS) . "\n";
             }
         }
     }
 
     public function findSourceRecursively(Node $node) {
-        echo get_class($node) ."\n";
+        // echo get_class($node) ."\n";
         $subnode_names = $node->getSubNodeNames();
         if (empty($subnode_names)) {
             return NULL;
@@ -128,7 +128,7 @@ class sqlVulnScan extends NodeVisitorAbstract {
             }
             else {
 
-                echo "Error in recursively traversing\n";
+                return null;
             }
             if (!empty($return_node)){
                 return $return_node;    // return_node is node with subnode that matches a sink
