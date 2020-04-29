@@ -2,10 +2,8 @@
 
 use PhpParser\ParserFactory;
 use PhpParser\NodeTraverser;
-require_once('Parser.php');
+include("Parser.php");
 
-
-// Gets the source code of all PHP files in a directory
 function getDirContents($dir, &$results = array()) {
     $files = scandir($dir);
 
@@ -13,12 +11,12 @@ function getDirContents($dir, &$results = array()) {
         $path = realpath($dir . DIRECTORY_SEPARATOR . $value);
         $characterCount = strlen ( $path );
         if (!is_dir($path)) {
-            if(substr($path, $characterCount-4, $characterCount) == ".php"){
+            if(substr($path, $characterCount-3, $characterCount) == "php"){
                 $results[] = $path;
             }
         } else if ($value != "." && $value != "..") {
             getDirContents($path, $results);
-            if(substr($path, $characterCount-4, $characterCount) == ".php"){
+            if(substr($path, $characterCount-3, $characterCount) == "php"){
                 $results[] = $path;
             }
         }
@@ -31,10 +29,9 @@ function getDirContents($dir, &$results = array()) {
 function parser($directory){
     $all_php_paths = getDirContents($directory);
 
-    // iterating through all php paths
     foreach ($all_php_paths as $key => $value) {
         // extending NodeVisitorAbstract to store the parent class
-        // echo "Scanning file " . str_replace(getcwd().'/', "", $value) . "\n";
+        // echo "\n" . "Scanning file " . str_replace(getcwd().'/', "", $value) . "\n";
         $links_contents = file_get_contents($value);
         $code = $links_contents;
 
@@ -52,48 +49,42 @@ function parser($directory){
 
         // traverse AST to find sqlVars
         $vuln1 = new SQLVulnScan();
+        $traverser1->addVisitor ($vuln1);
         $ast1 = $traverser1->traverse($ast);
         $sqlVarArray = $vuln1->sqlVars;
-
+        
         //traverse AST to find sql statements
         $vuln2 = new SQLVulnScan($sqlVarArray);
-
         $traverser2->addVisitor ($vuln2);
         $ast2 = $traverser2->traverse($ast);
-
-        $isVulnSQL = $vuln2->isVulnSQL;
+        $statements = $vuln2->sqlStatements;
         $linesSQL = $vuln2->linesSQL;
-        echo sizeof($sqlVarArray);
-        $isVulnXSS = $vuln2->isVulnXSS;
-        $linesXSS = $vuln2->linesXSS;
+        $linesXSS = $vuln1->linesXSS;
 
-        if($isVulnSQL){
-            // echo "\tWARNING, Concatenating SQL statement detected, Possible SQL Injection\n";
-            // $linesSQL = $as2->linesSQL;
-            // echo "\tFound in line ".$line." of ".$value;
 
+        if(sizeof($linesSQL) > 0){
             for ($i = 0; $i < sizeof($linesSQL); $i++) {
-                echo "\nPossible SQL Injection\n";
-                $line = $linesSQL[$i];
-                echo "In line ".$line." of ".$value."\n";
+                echo "SQL Injection\n";
+                echo "Found in line ".$linesSQL[$i]." of ".$value."\n";
+                echo "\n";
             }
-             echo "\n";
         }
 
-        if($isVulnXSS){
-            // echo "\tWARNING, Dangerous Sink/Source usage, Possible XSS vulnerability\n";
-            // $linesXSS = $as2->linesXSS;
-            // echo "\tFound in line ".$line." of ".$value;
 
+        if(sizeof($linesXSS) > 0){
             for ($i = 0; $i < sizeof($linesXSS); $i++) {
-                echo "\nPossible XSS vulnerability\n";
-                $line = $linesXSS[$i];
-                echo "Found in line ".$line." of ".$value."\n";
+                echo "XSS vulnerability\n";
+                echo "Found in line ".$linesXSS[$i]." of ".$value."\n";
+                echo "\n";
             }
         }
+        
+
     }
 
 }
 
 
 parser($argv[1]);
+
+
